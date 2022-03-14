@@ -1,3 +1,5 @@
+use rocket::fs::relative;
+use rocket::fs::FileServer;
 use rocket::tokio::select;
 use rocket::tokio::sync::broadcast::error::RecvError;
 use rocket::{
@@ -52,4 +54,5 @@ fn rocket() -> _ {
     rocket::build()
         .manage(channel::<Message>(1024).0)
         .mount("/", routes![post, events])
+        .mount("/", FileServer::from(relative!("static")))
 }
