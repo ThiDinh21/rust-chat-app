@@ -1,3 +1,4 @@
+use recase::ReCase;
 use rocket::fs::relative;
 use rocket::fs::FileServer;
 use rocket::tokio::select;
@@ -37,7 +38,11 @@ async fn events(queue: &State<Sender<Message>>, mut end: Shutdown) -> EventStrea
         loop {
             let msg = select!{
                 msg = rx.recv() => match msg {
-                    Ok(msg) => msg,
+                    Ok(mut msg) => {
+                        let recase = ReCase::new(msg.message.clone());
+                        msg.message = recase.alternating_case();
+                        msg
+                    },
                     Err(RecvError::Closed) => break,
                     Err(RecvError::Lagged(_)) => continue,
                 },
